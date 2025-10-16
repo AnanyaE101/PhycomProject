@@ -60,6 +60,7 @@ feedBtn.addEventListener("click", () => {
         console.warn("Feeding timeout");
         feedBtn.disabled = false;
         feed_timer = null;
+        statusEl.textContent = "No status from board";
     }, FEED_TIMEOUT);
 
     // ส่งคำสั่งไปบอร์ด
