@@ -1,3 +1,25 @@
+
+  // Import the functions you need from the SDKs you need
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyBOqETnt1C8qhZ1YRYSotDxYjJeZEioTIM",
+    authDomain: "petfeeder-promax-749f9.firebaseapp.com",
+    databaseURL: "https://petfeeder-promax-749f9-default-rtdb.asia-southeast1.firebasedatabase.app/",
+    projectId: "petfeeder-promax-749f9",
+    storageBucket: "petfeeder-promax-749f9.firebasestorage.app",
+    messagingSenderId: "47994252501",
+    appId: "1:47994252501:web:80c545a11a7abe0d4d065c"
+  };
+
+  // Initialize Firebase
+const app = initializeApp(firebaseConfig);
+
+
+
 const FEED_TIMEOUT = 10000;
 
 const host = "0b6280fa49a549c58dab95e2bb422274.s1.eu.hivemq.cloud";
