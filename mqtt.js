@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
-import { getDatabase, ref, push, update, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
+import { getDatabase, ref, set, push, update, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
 
 // Firebase settings
 const firebaseConfig = {
@@ -84,9 +84,10 @@ client.on("message", (topic, message) => {
     clearFeedTimer();
 
     // ส่งไป Firebase
-    push(ref(db, "logs/status"), {
+    var d = new Date();
+    const localTime = d.toLocaleString("en-GB", { timeZone: "Asia/Bangkok" }).replace(",", "").replace(/\//g, "-");
+    set(ref(db, `logs/feed/${localTime}`), {
         message: msg,
-        ts: serverTimestamp()
     });
 });
 
@@ -108,9 +109,11 @@ feedBtn.addEventListener("click", () => {
     statusText.textContent = "Feeding...";
 
     // ส่งไป Firebase
-    push(ref(db, "logs/feed"), {
-        event: "feed",
-        ts: serverTimestamp()
+    var d = new Date();
+    const localTime = d.toLocaleString("en-GB", { timeZone: "Asia/Bangkok" }).replace(",", "").replace(/\//g, "-");
+    // console.log(localTime);
+    set(ref(db, `logs/feed/${localTime}`), {
+        event: "feed"
     });
 });
 
@@ -135,6 +138,10 @@ function renderSchedule() {
         const newSchedule = document.createElement("li");
         newSchedule.className = "schedule-item";
 
+        const timeIndex = document.createElement("span");
+        timeIndex.className = "time-badge";
+        timeIndex.textContent = index + 1;
+        
         const timeSpan = document.createElement("span");
         timeSpan.className = "time-badge";
         timeSpan.textContent = item.t;
@@ -149,6 +156,7 @@ function renderSchedule() {
             renderSchedule();
         });
 
+        newSchedule.appendChild(timeIndex);
         newSchedule.appendChild(timeSpan);
         newSchedule.appendChild(trash);
         scheduleList.appendChild(newSchedule);
