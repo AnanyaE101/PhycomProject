@@ -1,3 +1,24 @@
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+import { getDatabase, ref, push, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
+
+// Firebase : setting
+const firebaseConfig = {
+  apiKey: "AIzaSyBOqETnt1C8qhZ1YRYSotDxYjJeZEioTIM",
+  authDomain: "petfeeder-promax-749f9.firebaseapp.com",
+  databaseURL: "https://petfeeder-promax-749f9-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "petfeeder-promax-749f9",
+  storageBucket: "petfeeder-promax-749f9.firebasestorage.app",
+  messagingSenderId: "47994252501",
+  appId: "1:47994252501:web:80c545a11a7abe0d4d065c"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+//-------MQTT--------
+
 const FEED_TIMEOUT = 10000;
 
 const host = "0b6280fa49a549c58dab95e2bb422274.s1.eu.hivemq.cloud";
@@ -48,7 +69,15 @@ client.on("message", (topic, message) => {
 
     feedBtn.disabled = false;
     clearFeedTimer();
+
+    // Firebase : ส่งไป Firebase db -------
+     push(ref(db, "logs/petfeeder/status"), {
+    message: msg,
+    ts: serverTimestamp()
+    //----------------------------
+  });
 });
+
 
 feedBtn.addEventListener("click", () => {
     feedBtn.disabled = true;
@@ -66,4 +95,12 @@ feedBtn.addEventListener("click", () => {
     // ส่งคำสั่งไปบอร์ด
     client.publish(PUBLISH_TOPIC, "feed");
     statusEl.textContent = "Feeding...";
+
+    // Firebase : ส่งไป db Firebase--------
+    push(ref(db, "logs/petfeeder/feed"), {
+    event: "feed",
+    ts: serverTimestamp()
+    //----------------------------
+
+  });
 });
