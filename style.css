@@ -9,7 +9,9 @@ h1 {
     color: #4caf50;
 }
 
-button {
+/* Feed Button */
+
+#feedBtn {
     background: #4caf50;
     color: white;
     padding: 14px 28px;
@@ -19,10 +21,149 @@ button {
     cursor: pointer;
 }
 
-button:hover {
+#feedBtn:hover {
     background: #43a047;
 }
 
 #status {
-    font-weight: bold; color: #333;
+    font-weight: bold; color: #333333;
+}
+
+/* Schedule Setting */
+
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    overflow: auto;
+    background: rgba(0,0,0,.4);
+}
+
+.modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-card {
+    width: 560px;
+    max-width: 92vw;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.2);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+#openScheduleBtn {
+    padding: 10px 14px;
+    background: #3976c5;
+    color: #ffffff;
+    font-size: 15px;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px
+}
+
+#closeScheduleBtn {
+    padding: 5px 9px;
+    font-weight: bold;
+    background: #df2626;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px
+}
+
+#closeScheduleBtn:hover {
+    background: #b41818;
+}
+
+.add-row {
+    height: 35px;
+    display: flex;
+    gap: 8px;
+    margin: 12px 0;
+}
+
+.add-row input {
+    width: 100%;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.add-row button {
+    padding: 10px 14px;
+    background: #2563eb;
+    color: white;
+    font-size: 14px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.add-row button:hover {
+    background: #1b51c5;
+}
+
+#saveScheduleBtn {
+    background: #4caf50;
+    color: #ffffff;
+    border: 0;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+#saveScheduleBtn:hover {
+    background: #3b8d3f;
+}
+
+#deleteModeBtn {
+    background: #ef4444;
+    color: #ffffff;
+    border: 0;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+#deleteModeBtn:hover {
+    background: #c22c2c;
+}
+
+.schedule-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 6px;
+    border-bottom: 1px solid #eeeeee;
+}
+
+.time-badge {
+    font-weight: 600;
+    min-width: 70px;
+}
+
+.trash {
+    margin-left: auto;
+    color: rgb(187, 11, 11);
+    background: transparent;
+    border: 0; cursor: pointer;
+    font-size: 18px;
+    display: none;
+}
+
+.delete-mode .trash {
+    display: inline;
 }

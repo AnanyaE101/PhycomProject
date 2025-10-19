@@ -9,7 +9,31 @@
   <h1>🐱 Pet Feeder Control</h1>
   <button id="feedBtn">Feed Now</button>
   <p>Status: <span id="status">Connecting...</span></p>
+  <button id="openScheduleBtn">Schedule</button>
+    <div id="schedule" class="modal" aria-hidden="true">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2>Feeding Schedule</h2>
+          <button id="closeScheduleBtn" aria-label="close">✕</button>
+        </div>
 
+        <ul id="scheduleList" class="schedule-list"></ul>
+
+        <div class="add-row">
+          <input type="time" id="timeInput">
+          <div>
+            <button id="addTimeBtn">Add</button>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <button id="deleteModeBtn">Delete</button>
+          <button id="saveScheduleBtn">Save</button>
+        </div>
+      </div>
+    </div>
+
+  <!-- โหลดเว็ปก่อนค่อยโหลด script -->
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
   <script type="module" src="mqtt.js"></script>  <!-- Firebase : ใส่ type="module" -->
 </body>
