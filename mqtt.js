@@ -62,14 +62,14 @@ function clearFeedTimer() {
 
 client.on("connect", () => {
     console.log("Connected to HiveMQ");
-    statusText.textContent = "🟢 Connected";
+    statusText.textContent = "Connected ✅ ";
     client.subscribe(SUBSCRIBE_TOPIC);
     feedBtn.disabled = false;
 });
 
 client.on("error", (err) => {
     console.error("MQTT Error:", err);
-    statusText.textContent = "🔴 Connection Error";
+    statusText.textContent = "Connection Error X";
     feedBtn.disabled = true;
     clearFeedTimer();
 });
@@ -129,6 +129,45 @@ function parseHHMM(time) {
 function sortByTime(a, b) {
     return parseHHMM(a) - parseHHMM(b);
 }
+
+
+// <<-----เพิ่ม Table------>> 
+import { onValue } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
+
+const feedTableBody = document.getElementById("feedTableBody");
+
+// ฟังก์ชันเพิ่มข้อมูล 1 แถว
+function addRow(timestamp, data) {
+  const row = document.createElement("tr");
+  const timeCell = document.createElement("td");
+  const msgCell = document.createElement("td");
+
+  timeCell.textContent = timestamp;
+  msgCell.textContent = data.event || data.message || "-";
+
+  row.appendChild(timeCell);
+  row.appendChild(msgCell);
+
+  // แทรกข้อมูลใหม่ไว้ "ด้านบนสุด" ของตาราง
+  feedTableBody.insertBefore(row, feedTableBody.firstChild);
+}
+
+// ดึงข้อมูลจาก Firebase แบบเรียลไทม์
+const logsRef = ref(db, "logs/feed");
+
+onValue(logsRef, (snapshot) => {
+  const data = snapshot.val();
+  feedTableBody.innerHTML = "";
+  if (!data) return;
+
+  // เรียงจากใหม่ → เก่า (ล่าสุดอยู่บนสุด)
+  const entries = Object.entries(data).sort((a, b) => new Date(b[0]) - new Date(a[0]));
+
+  entries.forEach(([timestamp, item]) => {
+    addRow(timestamp, item);
+  });
+});
+//----------------------------------
 
 function renderSchedule() {
     scheduleItems.sort(sortByTime); // sort ก่อน render
