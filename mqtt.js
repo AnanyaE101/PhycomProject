@@ -92,8 +92,6 @@ client.on("message", (topic, message) => {
     const text = "feed";
     if(msg == "feed_auto") {
         text = "Feed (auto)";
-    } else if(msg == "feed_manual") {
-        text = "Feed (manual)";
     } else if(msg == "Cat !!") {
         address = `logs/sensor/${localTime}`;
         text = "Cat Detected!";
@@ -101,7 +99,7 @@ client.on("message", (topic, message) => {
 
     // ส่งไป Firebase
     set(ref(db, address), {
-        message: text,
+        event: text,
     });
 });
 
@@ -259,5 +257,6 @@ function updateSchedule() {
 
     client.publish(PUBLISH_TOPIC, "updateSchedule")
 }
+
 
 renderSchedule();
