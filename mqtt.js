@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
-import { getDatabase, ref, set, push, update, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
+import { getDatabase, ref, set, push, update} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
 
 // Firebase settings
 const firebaseConfig = {
@@ -75,19 +75,69 @@ client.on("error", (err) => {
 });
 
 client.on("message", (topic, message) => {
-    if (topic !== SUBSCRIBE_TOPIC) return;
-    
+    if(topic != SUBSCRIBE_TOPIC) return;
+
     const msg = message.toString();
-    statusText.textContent = msg;
+    if(msg == "Feeding Done") {
+        statusText.textContent = "Feeding Done";
+    }
     
     feedBtn.disabled = false;
     clearFeedTimer();
-
-    // ส่งไป Firebase
+    
     var d = new Date();
     const localTime = d.toLocaleString("en-GB", { timeZone: "Asia/Bangkok" }).replace(",", "").replace(/\//g, "-");
-    set(ref(db, `logs/feed/${localTime}`), {
-        message: msg,
+    const address = `logs/feed/${localTime}`;
+
+    const text = "feed";
+    if(msg == "feed_auto") {
+        text = "Feed (auto)";
+    } else if(msg == "feed_manual") {
+        text = "Feed (manual)";
+    } else if(msg == "Cat !!") {
+        address = `logs/sensor/${localTime}`;
+        text = "Cat Detected!";
+    }
+
+    // ส่งไป Firebase
+    set(ref(db, address), {
+        message: text,
+    });
+});
+
+import { onValue } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
+
+const feedTableBody = document.getElementById("feedTableBody");
+
+// ฟังก์ชันเพิ่มข้อมูล 1 แถว
+function addRow(timestamp, data) {
+    const row = document.createElement("tr");
+    const timeCell = document.createElement("td");
+    const msgCell = document.createElement("td");
+    
+    timeCell.textContent = timestamp;
+    msgCell.textContent = data.event || data.message || "-";
+    
+    row.appendChild(timeCell);
+    row.appendChild(msgCell);
+    
+    // แทรกข้อมูลใหม่ไว้บนสุดตาราง
+    feedTableBody.insertBefore(row, feedTableBody.firstChild);
+}
+
+// ดึงข้อมูลจาก Firebase แบบเรียลไทม์
+const logsRef = ref(db, "logs/feed");
+
+onValue(logsRef, (snapshot) => {
+    const data = snapshot.val();
+    feedTableBody.innerHTML = "";
+    if (!data) return;
+    
+    // เรียงจากใหม่ > เก่า
+    const entries = Object.entries(data).sort((a, b) => new Date(b[0]) - new Date(a[0]));
+    
+    entries.forEach(([timestamp, item]) => {
+        addRow(timestamp, item);
     });
 });
 
@@ -113,14 +163,13 @@ feedBtn.addEventListener("click", () => {
     const localTime = d.toLocaleString("en-GB", { timeZone: "Asia/Bangkok" }).replace(",", "").replace(/\//g, "-");
     // console.log(localTime);
     set(ref(db, `logs/feed/${localTime}`), {
-        event: "feed"
+        event: "Feed (manual)"
     });
 });
 
 function parseHHMM(time) {
     // แปลง HH:mm เป็นหน่วยนาที
-    const x = (typeof time === "string") ? time : time.t; // รองรับ string และ object {t:"HH:mm"}
-    const [hh, mm] = x.split(":").map(x => parseInt(x, 10));
+    const [hh, mm] = time.split(":").map(n => parseInt(n, 10));
     return (hh * 60) + mm;
 
 }
@@ -130,50 +179,11 @@ function sortByTime(a, b) {
     return parseHHMM(a) - parseHHMM(b);
 }
 
-
-// <<-----เพิ่ม Table------>> 
-import { onValue } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
-
-const feedTableBody = document.getElementById("feedTableBody");
-
-// ฟังก์ชันเพิ่มข้อมูล 1 แถว
-function addRow(timestamp, data) {
-  const row = document.createElement("tr");
-  const timeCell = document.createElement("td");
-  const msgCell = document.createElement("td");
-
-  timeCell.textContent = timestamp;
-  msgCell.textContent = data.event || data.message || "-";
-
-  row.appendChild(timeCell);
-  row.appendChild(msgCell);
-
-  // แทรกข้อมูลใหม่ไว้ "ด้านบนสุด" ของตาราง
-  feedTableBody.insertBefore(row, feedTableBody.firstChild);
-}
-
-// ดึงข้อมูลจาก Firebase แบบเรียลไทม์
-const logsRef = ref(db, "logs/feed");
-
-onValue(logsRef, (snapshot) => {
-  const data = snapshot.val();
-  feedTableBody.innerHTML = "";
-  if (!data) return;
-
-  // เรียงจากใหม่ → เก่า (ล่าสุดอยู่บนสุด)
-  const entries = Object.entries(data).sort((a, b) => new Date(b[0]) - new Date(a[0]));
-
-  entries.forEach(([timestamp, item]) => {
-    addRow(timestamp, item);
-  });
-});
-//----------------------------------
-
 function renderSchedule() {
     scheduleItems.sort(sortByTime); // sort ก่อน render
     scheduleList.innerHTML = ""; // clear scheduleList เตรียม render ใหม่
 
-    scheduleItems.forEach((item, index) => {
+    scheduleItems.forEach((time, index) => {
         const newSchedule = document.createElement("li");
         newSchedule.className = "schedule-item";
 
@@ -183,7 +193,7 @@ function renderSchedule() {
         
         const timeSpan = document.createElement("span");
         timeSpan.className = "time-badge";
-        timeSpan.textContent = item.t;
+        timeSpan.textContent = time;
 
         const trash = document.createElement("button");
         trash.className = "trash";
@@ -192,6 +202,7 @@ function renderSchedule() {
         trash.addEventListener("click", () => {
             // ลบรายการนี้แล้ว render list ใหม่
             scheduleItems.splice(index, 1);
+            updateSchedule();
             renderSchedule();
         });
 
@@ -218,12 +229,12 @@ addTimeBtn.addEventListener("click", () => {
     const time = timeInput.value; // HH:mm
 
     // กันใส่ค่าว่างกับเวลาซ้ำ
-    if ((!time || !/^\d{2}:\d{2}$/.test(time)) || (scheduleItems.some(it => it.t === time))) {
+    if ((!time || !/^\d{2}:\d{2}$/.test(time)) || (scheduleItems.some(it => it === time))) {
         timeInput.value = "";
         return;
     }
     
-    scheduleItems.push({t: time});
+    scheduleItems.push(time);
     timeInput.value = "";
     renderSchedule();
 });
@@ -235,12 +246,18 @@ deleteModeBtn.addEventListener("click", () => {
 });
 
 saveScheduleBtn.addEventListener("click", () => {
+    updateSchedule();
+});
+
+function updateSchedule() {
     // ส่งไป Firebase
     const updates = {
         schedule: scheduleItems,
     };
     update(ref(db), updates);
     // console.log(scheduleItems);
-});
+
+    client.publish(PUBLISH_TOPIC, "updateSchedule")
+}
 
 renderSchedule();
